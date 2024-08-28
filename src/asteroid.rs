@@ -1,18 +1,23 @@
-use crate::movements::{Acceleration, MovingObjectBundle, Velocity};
+use crate::assets_loader::SceneAssets;
+use crate::{
+    collision_detection::Collider,
+    movements::{Acceleration, MovingObjectBundle, Velocity},
+};
 use bevy::prelude::*;
 use rand::{thread_rng, Rng};
 use std::ops::Range;
-use bevy::asset::ErasedAssetLoader;
-use crate::assets_loader::SceneAssets;
+use crate::schedule::InGameSet;
 
 const ASTEROID_TRANSLATION_X: Range<f32> = -25.0..25.0;
 const ASTEROID_TRANSLATION_Z: Range<f32> = 0.0..25.0;
 const VELOCITY_SCALAR: f32 = 5.0;
 const ACCELERATION_SCALAR: f32 = 5.0;
 const ASTEROID_SPAWN_INTERVAL: f32 = 1.0;
+const ASTEROIDS_ROTATE_SPEED: f32 = 2.5;
+const ASTEROIDS_COLLISION_RADIUS: f32 = 2.5;
 
 #[derive(Component, Debug)]
-struct Asteroid;
+pub struct Asteroid;
 
 #[derive(Resource, Debug)]
 struct SpawnTimer {
@@ -26,8 +31,10 @@ impl Plugin for AsteroidPlugin {
         app.insert_resource(SpawnTimer {
             timer: Timer::from_seconds(ASTEROID_SPAWN_INTERVAL, TimerMode::Repeating),
         })
-        .add_systems(Update, spawn_asteroid);
-        // .add_systems(PostStartup, spawn_asteroid);
+        .add_systems(
+            Update,
+            (spawn_asteroid, rotate_asteroids).in_set(InGameSet::EntityUpdate),
+        );
     }
 }
 
@@ -65,6 +72,7 @@ fn spawn_asteroid(
         MovingObjectBundle {
             velocity: Velocity::new(velocity),
             acceleration: Acceleration::new(acceleration),
+            collider: Collider::new(ASTEROIDS_COLLISION_RADIUS),
             scene_bundle: SceneBundle {
                 scene: scene_assets.asteroid.clone(),
                 transform: Transform::from_translation(translation),
@@ -73,4 +81,10 @@ fn spawn_asteroid(
         },
         Asteroid,
     ));
+}
+
+fn rotate_asteroids(mut query: Query<&mut Transform, With<Asteroid>>, time: Res<Time>) {
+    for mut transform in query.iter_mut() {
+        transform.rotate_local_z(ASTEROIDS_ROTATE_SPEED * time.delta_seconds());
+    }
 }

@@ -2,6 +2,9 @@ use bevy::app::App;
 use bevy::math::Vec3;
 use bevy::prelude::*;
 
+use crate::collision_detection::Collider;
+use crate::schedule::InGameSet;
+
 #[derive(Component, Debug)]
 pub struct Velocity {
     pub value: Vec3,
@@ -28,6 +31,7 @@ impl Acceleration {
 pub struct MovingObjectBundle {
     pub velocity: Velocity,
     pub acceleration: Acceleration,
+    pub collider: Collider,
     pub scene_bundle: SceneBundle,
 }
 
@@ -35,7 +39,13 @@ pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, update_position);
+        app.add_systems(Update, (update_velocity, update_position).chain().in_set(InGameSet::EntityUpdate));
+    }
+}
+
+fn update_velocity(mut query: Query<(&Acceleration, &mut Velocity)>, time: Res<Time>) {
+    for (acceleration, mut velocity) in query.iter_mut() {
+        velocity.value += acceleration.value * time.delta_seconds();
     }
 }
 

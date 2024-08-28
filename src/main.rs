@@ -1,17 +1,23 @@
 mod assets_loader;
 mod asteroid;
 mod camera;
+mod collision_detection;
 mod debug;
+mod despawn;
 mod movements;
+mod schedule;
 mod spaceship;
 
 use crate::assets_loader::AssetLoadPlugin;
 use crate::asteroid::AsteroidPlugin;
 use crate::camera::CameraPlugin;
+use crate::collision_detection::CollisionDetectionPlugin;
 use crate::debug::DebugPlugin;
 use crate::movements::MovementPlugin;
 use crate::spaceship::SpaceshipPlugin;
 use bevy::prelude::*;
+use despawn::DespawnPlugin;
+use schedule::SchedulePlugin;
 
 const BACKGROUND_COLOR: Color = Color::srgb(0.9, 0.9, 0.9);
 fn main() {
@@ -24,9 +30,12 @@ fn main() {
         })
         .add_plugins(DebugPlugin)
         .add_plugins(AssetLoadPlugin)
+        .add_plugins(CollisionDetectionPlugin)
         .add_plugins(MovementPlugin)
         .add_plugins(AsteroidPlugin)
         .add_plugins(SpaceshipPlugin)
+        .add_plugins(DespawnPlugin)
+        .add_plugins(SchedulePlugin)
         .add_plugins(CameraPlugin)
         .run();
 }
