@@ -2,11 +2,15 @@ mod assets_loader;
 mod asteroid;
 mod camera;
 mod collision_detection;
+mod damage;
 mod debug;
 mod despawn;
+mod health;
+mod missile;
 mod movements;
 mod schedule;
 mod spaceship;
+mod state;
 
 use crate::assets_loader::AssetLoadPlugin;
 use crate::asteroid::AsteroidPlugin;
@@ -15,6 +19,7 @@ use crate::collision_detection::CollisionDetectionPlugin;
 use crate::debug::DebugPlugin;
 use crate::movements::MovementPlugin;
 use crate::spaceship::SpaceshipPlugin;
+use crate::state::GameStatePlugin;
 use bevy::prelude::*;
 use despawn::DespawnPlugin;
 use schedule::SchedulePlugin;
@@ -36,6 +41,7 @@ fn main() {
         .add_plugins(SpaceshipPlugin)
         .add_plugins(DespawnPlugin)
         .add_plugins(SchedulePlugin)
+        .add_plugins(GameStatePlugin)
         .add_plugins(CameraPlugin)
         .run();
 }
